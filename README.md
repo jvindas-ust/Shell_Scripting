@@ -110,6 +110,24 @@ The `env` command lists all the environment variables. If you run `env` after th
 env
 ```
 
+There are some variables that are automatically export in the [Bash Shell Startup Files](https://www.tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter07/profile.html) that help create the environment for the current session. In linux there are [many of this files](https://medium.com/coding-blocks/getting-to-understand-linux-shell-s-start-up-scripts-and-the-environments-path-variable-fc672107b2d7), but in ubuntu the most common file is the `.bashrc`
+
+```bash
+nano ~/.bashrc
+```
+
+Inside you could also notice another command called `alias`. A [shell alias](https://shapeshed.com/unix-alias/) is a shortcut to reference a command. It can be used to avoid typing long commands or as a means to correct incorrect input. The use the`unalias` command to remove.
+
+```bash
+alias lh='ls -lhat'
+```
+
+If you want this changes to remain in your system, you need to add this line to your startup file, to reload a startup file in the current session the `source` command can be use; or its `.` alias. For example add this alias and reload the file:
+
+```bash
+alias update='sudo apt update && sudo apt upgrade'
+```
+
 The `set` and `unset` commands can also be used to declare and un-declare variables, the difference with the export command is that they declare variables in the current shell. The export command is used to define the variable as one that subshells (shells spawned from the original) should inherit, [read more](http://hackjutsu.com/2016/08/04/Difference%20between%20set,%20export%20and%20env%20in%20bash/). But how do we manipulate environment variables inside a Python script?
 
 ## Python's OS Module
@@ -154,7 +172,14 @@ cat days.txt | ./04_read_stdin.py
 
 In Ubuntu there is an [Authorization Log](https://help.ubuntu.com/community/LinuxLogFiles#Authorization_Log) that tracks the usage of authorization systems, the mechanisms for authorizing users which prompt for user passwords, like when you execute a sudo command. This file is located here `/var/log/auth.log`.
 
-In order to analyze this file, let's say we want to view the _usernames that fail an authentication_, you could use one of the tools we learned like `awk`:
+In order to analyze this file, let's say we want to view the _usernames that fail an authentication_, first inspect the file:
+
+```bash
+cat /var/log/auth.log | more
+grep -a "failure" /var/log/auth.log
+```
+
+Now you could use one of the tools we learned like `awk`:
 
 ```bash
 awk '/authentication failure/ {print $4}' /var/log/auth.log | uniq
