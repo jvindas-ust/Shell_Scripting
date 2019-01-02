@@ -6,6 +6,7 @@
 -   [Our first python shell script](#our-first-python-shell-script)
 -   [export and env command](#export-and-env-command)
 -   [Python's OS Module](#pythons-os-module)
+-   [A more complex example](#a-more-complex-example)
 
 ## What is it?
 
@@ -124,3 +125,53 @@ import os
 
 print(os.environ['HOME'])
 ```
+
+## A more complex example
+
+For our more complex example we will try to count the unique names inside a system log file. In order to do that we need to [open a file and read it line by line](https://stackabuse.com/read-a-file-line-by-line-in-python/), in python that is pretty easy:
+
+```python
+with open('days.txt') as file:
+    for line in file:
+        # Do something with the line
+```
+
+Notice that we are hard coding the file path, it would be great to pipe the file to our script like we did with other shell commands, for example `| more`. For this we will use another python module from the standar library called [`sys`](https://docs.python.org/3/library/sys.html) which has a function call [`sys.stdin`](https://docs.python.org/3/library/sys.html#sys.stdin) to read the [standard input stream](https://en.wikipedia.org/wiki/Standard_streams)
+
+```python
+import sys
+
+for line in sys.stdin.readlines():
+	for line in file:
+		# Do something with the line
+```
+
+Now we can pipe a file into our script like this:
+
+```bash
+cat days.txt | ./04_read_stdin.py
+```
+
+In Ubuntu there is an [Authorization Log](https://help.ubuntu.com/community/LinuxLogFiles#Authorization_Log) that tracks the usage of authorization systems, the mechanisms for authorizing users which prompt for user passwords, like when you execute a sudo command. This file is located here `/var/log/auth.log`.
+
+In order to analyze this file, let's say we want to view the _usernames that fail an authentication_, you could use one of the tools we learned like `awk`:
+
+```bash
+awk '/authentication failure/ {print $4}' /var/log/auth.log | uniq
+```
+
+But what if you want to count the amount of failed logins per user, you could do something like:
+
+```bash
+awk '/authentication failure/ {print $4}' /var/log/auth.log | wc -l
+```
+
+Now pretend that your server has hundreds of users and your boss asks you for a python dictionary in the form:
+
+```python
+{
+	username: count
+}
+```
+
+Modify the script `05_count_users.py` to do this functionality. If you feel confident and want to go the extra mile save the results as a .json file that could be later consume by a web service API.
